@@ -1,0 +1,29 @@
+.button {
+  background-color: var(---primary-color);
+  flex-shrink: 0;
+  border-radius: 5px;
+  cursor: pointer;
+  border: none;
+}
+
+.button_transparent {
+  background-color: transparent;
+  border: 1px;
+}
+
+.button_round {
+  border-radius: 50%;
+}
+
+.change-theme-btn {
+  width: 38px;
+  height: 38px;
+}
+
+.new-task-btn {
+  width: 50px;
+  height: 50px;
+  position: fixed;
+  bottom: 32px;
+  right: 20vw;
+}

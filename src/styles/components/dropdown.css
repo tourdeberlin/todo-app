@@ -1,0 +1,25 @@
+.dropdown {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  max-width: 300px;
+
+  margin: 0 auto;
+}
+
+.dropdown__btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: 38px;
+  border: none;
+  border-radius: 5px;
+  color: var(--light-color);
+  padding: 12px 10px;
+  cursor: pointer;
+}
+
+.dropdown__menu {
+  display: none;
+}
