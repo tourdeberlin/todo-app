@@ -11,8 +11,11 @@
   align-items: center;
 }
 
-.header__title {
-  font-size: 26px;
-  color: var(--main-color);
-  text-transform: uppercase;
+.search {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  width: 750px;
+  justify-content: space-between;
+  gap: 16px;
 }

@@ -34,3 +34,10 @@ body {
   white-space: nowrap;
   border-width: 0;
 }
+
+.title {
+  font-size: 26px;
+  color: var(--main-color);
+  text-transform: uppercase;
+  text-align: center;
+}

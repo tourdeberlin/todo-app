@@ -1,23 +1,40 @@
 .button {
-  background-color: var(---primary-color);
-  flex-shrink: 0;
+  background-color: var(--primary-color);
+
+  color: var(--light-color);
   border-radius: 5px;
   cursor: pointer;
   border: none;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  padding: 10px 22px;
+
+  &:hover {
+    background-color: var(--hover-color);
+  }
 }
 
 .button_transparent {
   background-color: transparent;
-  border: 1px;
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+
+  &:hover {
+    color: vcar(--light-color);
+  }
 }
 
 .button_round {
   border-radius: 50%;
+  padding: 0;
 }
 
 .change-theme-btn {
+  flex-shrink: 0;
   width: 38px;
   height: 38px;
+  padding: 0;
 }
 
 .new-task-btn {

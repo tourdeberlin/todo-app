@@ -1,7 +1,8 @@
 :root {
   --main-color: #252525;
   --light-color: #f7f7f7;
-  ---primary-color: #6c63ff;
+  --primary-color: #6c63ff;
+  --hover-color: #5850DD;
   --font-main: "Kanit", Arial, sans-serif;
   --font-second: "Inter", sans-serif;
 }
