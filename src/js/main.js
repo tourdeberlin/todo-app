@@ -1,16 +1,18 @@
 import { createElement } from "./utils.js";
 const notesList = document.querySelector(".list");
-
 const newNoteBtn = document.querySelector(".new-note-btn");
 const modal = document.querySelector(".modal");
 const modalInput = document.querySelector(".modal__input");
 const cancelBtn = document.querySelector("#cancel-modal");
 const modalOverlay = document.querySelector(".modal__overlay");
 const modalForm = document.querySelector(".modal__form");
+const searchInput = document.querySelector('.field__input_search');
 
-let notes = getNotesFromLocalStorage();
-
-
+const state = {
+  notes: getNotesFromLocalStorage(),
+  searchQuery: '',
+  statusFilter: 'all'
+}
 
 function getNotesFromLocalStorage() {
   const data = localStorage.getItem("note-items");
@@ -26,7 +28,7 @@ function getNotesFromLocalStorage() {
 }
 
 function saveToLocalStorage() {
-  localStorage.setItem("note-items", JSON.stringify(notes));
+  localStorage.setItem("note-items", JSON.stringify(state.notes));
 }
 
 function addNewNote(newNoteText) {
@@ -35,14 +37,17 @@ function addNewNote(newNoteText) {
     text: newNoteText,
     completed: false,
   };
-  notes.push(newNote);
+  state.notes.push(newNote);
   saveToLocalStorage();
   renderNotes();
 }
 
 function renderNotes() {
   notesList.innerHTML = "";
-  if (notes.length === 0) {
+
+  const filteredNotes = state.notes.filter((note) => note.text.toLowerCase().includes(state.searchQuery));
+
+  if (filteredNotes.length === 0) {
     const empty = createElement({
       tag: "div",
       parent: notesList,
@@ -62,7 +67,7 @@ function renderNotes() {
     });
   }
 
-  notes.map((note) => {
+  filteredNotes.map((note) => {
     createNote(note);
   });
 }
@@ -138,14 +143,14 @@ function createNote(newNote) {
 }
 
 function deleteNote(id) {
-  notes = notes.filter((note) => note.id !== id);
+  state.notes = state.notes.filter((note) => note.id !== id);
 
   saveToLocalStorage();
   renderNotes();
 }
 
 function toggleCompletedNote(id) {
-  notes = notes.map((note) => {
+  state.notes = state.notes.map((note) => {
     if (note.id === id) {
       return {
         ...note,
@@ -186,16 +191,19 @@ function startEditing(noteElem) {
 
   noteInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
-      saveEdit(noteId, noteInput.value);
+      saveEdit(noteElem);
       renderNotes();
     }
   });
 }
 
-function saveEdit(id, newText) {
+function saveEdit(noteElem) {
+  const noteInput = noteElem.querySelector(".note__input");
+  const newText = noteInput.value.trim();
+
   if (!newText) return;
 
-  notes = notes.map((note) => {
+  state.notes = state.notes.map((note) => {
     if (note.id === id) {
       return {
         ...note,
@@ -243,7 +251,7 @@ function noteHandleClick({ target }) {
 
   if (target.closest("[class*='edit']")) {
     if (isEditing) {
-      saveEdit(noteElement, noteId);
+      saveEdit(noteElement);
     } else {
       startEditing(noteElement);
     }
@@ -269,7 +277,9 @@ cancelBtn.addEventListener("click", () => {
 modalOverlay.addEventListener("click", (e) => {
   if (e.target === modalOverlay) {
     modal.classList.remove("open");
+    modalInput.value = "";
   }
+  
 });
 
 modalForm.addEventListener("submit", (e) => {
@@ -279,10 +289,15 @@ modalForm.addEventListener("submit", (e) => {
   if (!noteText) return;
 
   addNewNote(noteText);
-  modalInput.value = "";
+  
   modal.classList.remove("open");
 });
 
 notesList.addEventListener("click", noteHandleClick);
+
+searchInput.addEventListener('input', (e) => {
+  state.searchQuery = e.target.value.toLowerCase();
+  renderNotes();
+})
 
 renderNotes();
