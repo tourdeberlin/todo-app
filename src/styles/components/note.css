@@ -97,7 +97,7 @@
 
 .note__options {
   display: flex;
-  gap: 7px;
+  gap: 10px;
   margin-left: auto;
   opacity: 0;
 }
@@ -106,4 +106,21 @@
   border: none;
   background-color: transparent;
   cursor: pointer;
+}
+
+.delete-svg path {
+  transition: stroke 0.2s ease;
+}
+
+.delete-btn:hover .delete-svg path {
+  stroke: red;
+}
+
+.edit-svg path {
+  stroke: #CDCDCD;
+  transition: stroke 0.2s ease;
+}
+
+.edit-btn:hover .edit-svg path {
+  stroke: var(--primary-color);
 }

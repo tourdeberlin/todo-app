@@ -8,17 +8,17 @@ const cancelBtn = document.querySelector("#cancel-modal");
 const modalOverlay = document.querySelector(".modal__overlay");
 const modalForm = document.querySelector(".modal__form");
 
-const notes = getNotesFromLocalStorage();
+let notes = getNotesFromLocalStorage();
+
 renderNotes();
 
 function getNotesFromLocalStorage() {
   const data = localStorage.getItem("note-items");
-  if (!data) {
-    return [];
-  }
+  if (!data) return [];
+  
   try {
     const parsedData = JSON.parse(data);
-    return Array.isArray(parsedData) ? parsedData : [];
+    return Array.isArray(parsedData) ? parsedData.filter(Boolean) : [];
   } catch {
     console.error("Notes parse error");
     return [];
@@ -38,7 +38,6 @@ function addNewNote(newNoteText) {
   notes.push(newNote);
   saveToLocalStorage();
   renderNotes();
-  console.log(notes)
 }
 
 function renderNotes() {
@@ -61,7 +60,6 @@ function renderNotes() {
       parent: empty,
       classNames: ["empty__text"],
     });
-    console.log("empty");
   }
 
   notes.map((note) => {
@@ -118,7 +116,7 @@ function createNote(newNote) {
     parent: options,
     classNames: ["option-btn", "edit-btn"],
   });
-  editOption.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+  editOption.innerHTML = `<svg class="edit-svg" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M7.17272 3.49106L0.5 10.1637V13.5H3.83636L10.5091 6.82736M7.17272 3.49106L9.5654 1.09837L9.5669 1.09695C9.8962 0.767585 10.0612 0.602613 10.2514 0.540824C10.4189 0.486392 10.5993 0.486392 10.7669 0.540824C10.9569 0.602571 11.1217 0.767352 11.4506 1.09625L12.9018 2.54738C13.2321 2.87769 13.3973 3.04292 13.4592 3.23337C13.5136 3.40088 13.5136 3.58133 13.4592 3.74885C13.3974 3.93916 13.2324 4.10414 12.9025 4.43398L12.9018 4.43468L10.5091 6.82736M7.17272 3.49106L10.5091 6.82736" stroke="#CDCDCD" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>`;
 
@@ -129,13 +127,58 @@ function createNote(newNote) {
   });
 
   deleteOption.innerHTML = `
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg class="delete-svg" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M3.87426 7.61505C3.80724 6.74386 4.49607 6 5.36983 6H12.6302C13.504 6 14.1928 6.74385 14.1258 7.61505L13.6065 14.365C13.5464 15.1465 12.8948 15.75 12.1109 15.75H5.88907C5.10526 15.75 4.4536 15.1465 4.39348 14.365L3.87426 7.61505Z" stroke="#CDCDCD"/>
     <path d="M14.625 3.75H3.375" stroke="#CDCDCD" stroke-linecap="round"/>
     <path d="M7.5 2.25C7.5 1.83579 7.83577 1.5 8.25 1.5H9.75C10.1642 1.5 10.5 1.83579 10.5 2.25V3.75H7.5V2.25Z" stroke="#CDCDCD"/>
     <path d="M10.5 9V12.75" stroke="#CDCDCD" stroke-linecap="round"/>
     <path d="M7.5 9V12.75" stroke="#CDCDCD" stroke-linecap="round"/>
     </svg>`;
+}
+
+function deleteNote(id) {
+  notes = notes.filter((note) => note.id !== id);
+
+  saveToLocalStorage();
+  renderNotes();
+}
+
+function toggleCompleted(id) {
+    notes = notes.map((note) => {
+      if (note.id === id) {
+        return {
+          ...note,
+          completed: !note.completed,
+        }
+      }
+
+      return note;
+    })
+
+  saveToLocalStorage();
+  renderNotes();
+}
+
+function noteHandleClick({ target }) {
+  const noteElement = target.closest(".note");
+  if (!noteElement) return;
+
+  const noteId = noteElement.dataset.id;
+
+  if (target.closest("[class*='delete']")) {
+    noteElement.classList.add("is-dissapearing");
+    setTimeout(() => {
+      deleteNote(noteId);
+    }, 500);
+  }
+
+  if (target.closest("[class*='edit']")) {
+    console.log("edit");
+  }
+
+  if (target.closest("[class*='checkbox']")) {
+    toggleCompleted(noteId);
+  }
 }
 
 newNoteBtn.addEventListener("click", () => {
@@ -160,6 +203,8 @@ modalForm.addEventListener("submit", (e) => {
   if (!noteText) return;
 
   addNewNote(noteText);
-  modalInput.value = '';
+  modalInput.value = "";
   modal.classList.remove("open");
 });
+
+notesList.addEventListener("click", noteHandleClick);
