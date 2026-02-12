@@ -107,33 +107,8 @@
           </div>
         </header>
         <main>
-          <div class="list">
-            <div class="note">
-              <label class="note__checkbox checkbox">
-                <input type="checkbox" class="checkbox__input" />
-                <span class="checkbox__custom"></span>
-                <span class="note__text">fgdfkjdg</span>
-              </label>
-              <input type="text" class="note__input" />
-              <div class="note__options">
-                <button class="option-btn">edit</button>
-                <button class="option-btn">delete</button>
-              </div>
-            </div>
-            <div class="note">
-              <label class="note__checkbox checkbox">
-                <input type="checkbox" class="checkbox__input" />
-                <span class="checkbox__custom"></span>
-                <span class="note__text">fgdfkjdg</span>
-              </label>
-              <input type="text" class="note__input" />
-              <div class="note__options">
-                <button class="option-btn">edit</button>
-                <button class="option-btn">delete</button>
-              </div>
-            </div>
-          </div>
-          <button class="button button_round new-task-btn">
+          <div class="list"></div>
+          <button class="button button_round new-note-btn">
             <svg
               width="24"
               height="24"
@@ -158,14 +133,16 @@
                   <div class="field">
                     <input
                       class="field__input modal__input"
-                      name="search"
+                      type="text"
                       placeholder="Input your note"
                       autocomplete="off"
                     />
                   </div>
                   <div class="modal__buttons">
-                    <button class="button button_transparent">Cancel</button>
-                    <button class="button">Apply</button>
+                    <button class="button button_transparent" id="cancel-modal">
+                      Cancel
+                    </button>
+                    <button class="button" type="submit">Apply</button>
                   </div>
                 </form>
               </div>
@@ -174,7 +151,9 @@
         </main>
       </div>
 
+      <script type="module" src="/src/js/utils.js"></script>
       <script type="module" src="/src/js/main.js"></script>
+      <script type="module" src="/src/js/modal.js"></script>
     </body>
   </body>
 </html>
