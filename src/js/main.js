@@ -1,7 +1,15 @@
 import { createElement } from "./utils.js";
 const notesList = document.querySelector(".list");
 
+const newNoteBtn = document.querySelector(".new-note-btn");
+const modal = document.querySelector(".modal");
+const modalInput = document.querySelector(".modal__input");
+const cancelBtn = document.querySelector("#cancel-modal");
+const modalOverlay = document.querySelector(".modal__overlay");
+const modalForm = document.querySelector(".modal__form");
+
 const notes = getNotesFromLocalStorage();
+renderNotes();
 
 function getNotesFromLocalStorage() {
   const data = localStorage.getItem("note-items");
@@ -19,6 +27,18 @@ function getNotesFromLocalStorage() {
 
 function saveToLocalStorage() {
   localStorage.setItem("note-items", JSON.stringify(notes));
+}
+
+function addNewNote(newNoteText) {
+  const newNote = {
+    id: crypto?.randomUUID() ?? Date.now().toString(),
+    text: newNoteText,
+    completed: false,
+  };
+  notes.push(newNote);
+  saveToLocalStorage();
+  renderNotes();
+  console.log(notes)
 }
 
 function renderNotes() {
@@ -48,8 +68,6 @@ function renderNotes() {
     createNote(note);
   });
 }
-
-renderNotes();
 
 function createNote(newNote) {
   const task = createElement({
@@ -119,3 +137,29 @@ function createNote(newNote) {
     <path d="M7.5 9V12.75" stroke="#CDCDCD" stroke-linecap="round"/>
     </svg>`;
 }
+
+newNoteBtn.addEventListener("click", () => {
+  modal.classList.add("open");
+  modalInput.focus();
+});
+
+cancelBtn.addEventListener("click", () => {
+  modal.classList.remove("open");
+});
+
+modalOverlay.addEventListener("click", (e) => {
+  if (e.target === modalOverlay) {
+    modal.classList.remove("open");
+  }
+});
+
+modalForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const noteText = modalInput.value.trim();
+  if (!noteText) return;
+
+  addNewNote(noteText);
+  modalInput.value = '';
+  modal.classList.remove("open");
+});
