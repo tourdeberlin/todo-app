@@ -2,6 +2,7 @@
   display: flex;
   justify-content: start;
   align-items: center;
+  position: relative;
   gap: 17px;
   width: 520px;
   height: 60px;
@@ -92,7 +93,29 @@
 }
 
 .note__input {
+  position: absolute;
+  top: 49%;
+  left: 36px;
+  border: none;
+  background-color: transparent;
+  transform: translate(0, -50%);
+  font-weight: 600;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.note__input.none {
   display: none;
+}
+
+.note--editing .note__text {
+  display: none;
+}
+
+.note--editing .note__input {
+  display: block;
 }
 
 .note__options {
@@ -117,7 +140,7 @@
 }
 
 .edit-svg path {
-  stroke: #CDCDCD;
+  stroke: #cdcdcd;
   transition: stroke 0.2s ease;
 }
 

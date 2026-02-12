@@ -10,12 +10,12 @@ const modalForm = document.querySelector(".modal__form");
 
 let notes = getNotesFromLocalStorage();
 
-renderNotes();
+
 
 function getNotesFromLocalStorage() {
   const data = localStorage.getItem("note-items");
   if (!data) return [];
-  
+
   try {
     const parsedData = JSON.parse(data);
     return Array.isArray(parsedData) ? parsedData.filter(Boolean) : [];
@@ -68,16 +68,16 @@ function renderNotes() {
 }
 
 function createNote(newNote) {
-  const task = createElement({
+  const note = createElement({
     tag: "div",
     parent: notesList,
     classNames: ["note"],
   });
-  task.dataset.id = newNote.id;
+  note.dataset.id = newNote.id;
 
   const label = createElement({
     tag: "label",
-    parent: task,
+    parent: note,
     classNames: ["note__checkbox", "checkbox"],
   });
   const input = createElement({
@@ -99,16 +99,17 @@ function createNote(newNote) {
     parent: label,
     classNames: ["note__text"],
   });
-  const taskInput = createElement({
+  const noteInput = createElement({
     tag: "input",
-    parent: task,
-    classNames: ["note__input"],
+    parent: note,
+    classNames: ["note__input", "none"],
   });
-  taskInput.type = "text";
+  noteInput.type = "text";
+  noteInput.value = newNote.text;
 
   const options = createElement({
     tag: "div",
-    parent: task,
+    parent: note,
     classNames: ["note__options"],
   });
   const editOption = createElement({
@@ -143,19 +144,81 @@ function deleteNote(id) {
   renderNotes();
 }
 
-function toggleCompleted(id) {
-    notes = notes.map((note) => {
-      if (note.id === id) {
-        return {
-          ...note,
-          completed: !note.completed,
-        }
-      }
+function toggleCompletedNote(id) {
+  notes = notes.map((note) => {
+    if (note.id === id) {
+      return {
+        ...note,
+        completed: !note.completed,
+      };
+    }
 
-      return note;
-    })
+    return note;
+  });
 
   saveToLocalStorage();
+  renderNotes();
+}
+
+function startEditing(noteElem) {
+  const noteId = noteElem.dataset.id;
+  const noteInput = noteElem.querySelector(".note__input");
+  const noteText = noteElem.querySelector(".note__text");
+  const editBtn = noteElem.querySelector(".edit-btn");
+  const deleteBtn = noteElem.querySelector(".delete-btn");
+
+  noteElem.classList.add("note--editing");
+  noteText.classList.add("none");
+  noteInput.classList.remove("none");
+
+  noteInput.focus();
+
+  editBtn.innerHTML = `<svg width="17" height="17" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <mask id="path-1-inside-1_18_421" fill="white">
+    <path d="M4.9978 14.6488L1.72853e-05 9.74756L9.55927 3.20136e-07L14.5571 4.90124L4.9978 14.6488Z"/>
+    </mask>
+    <path d="M4.9978 14.6488L3.59745 16.0767L5.02539 17.4771L6.42574 16.0491L4.9978 14.6488ZM6.39816 13.2209L1.40037 8.31962L-1.40034 11.1755L3.59745 16.0767L6.39816 13.2209ZM13.1291 3.50089L3.56986 13.2484L6.42574 16.0491L15.985 6.30159L13.1291 3.50089Z" fill="#6c63ff" mask="url(#path-1-inside-1_18_421)"/>
+    </svg>`;
+
+  deleteBtn.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="none">
+    <path stroke="#CC1E1E" stroke-width="4" d="M7.071 21.213 21.213 7.071M21.213 21.213 7.071 7.071"/></svg>`;
+
+  noteInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      saveEdit(noteId, noteInput.value);
+      renderNotes();
+    }
+  });
+}
+
+function saveEdit(id, newText) {
+  if (!newText) return;
+
+  notes = notes.map((note) => {
+    if (note.id === id) {
+      return {
+        ...note,
+        text: newText,
+      };
+    }
+    return note;
+  });
+
+  saveToLocalStorage();
+  renderNotes();
+}
+
+function cancelEdit(noteElem) {
+  const noteText = noteElem.querySelector(".note__text");
+  const noteInput = noteElem.querySelector(".note__input");
+
+  noteElem.value = noteText.textContent;
+
+  noteElem.classList.remove("note--editing");
+  noteInput.classList.add("none");
+  noteText.classList.remove("none");
+
   renderNotes();
 }
 
@@ -165,19 +228,31 @@ function noteHandleClick({ target }) {
 
   const noteId = noteElement.dataset.id;
 
+  const isEditing = noteElement.classList.contains("note--editing");
+
   if (target.closest("[class*='delete']")) {
-    noteElement.classList.add("is-dissapearing");
-    setTimeout(() => {
-      deleteNote(noteId);
-    }, 500);
+    if (isEditing) {
+      cancelEdit(noteElement);
+    } else {
+      noteElement.classList.add("is-dissapearing");
+      setTimeout(() => {
+        deleteNote(noteId);
+      }, 500);
+    }
   }
 
   if (target.closest("[class*='edit']")) {
-    console.log("edit");
+    if (isEditing) {
+      saveEdit(noteElement, noteId);
+    } else {
+      startEditing(noteElement);
+    }
   }
 
   if (target.closest("[class*='checkbox']")) {
-    toggleCompleted(noteId);
+    if (!isEditing) {
+      toggleCompletedNote(noteId);
+    }
   }
 }
 
@@ -188,6 +263,7 @@ newNoteBtn.addEventListener("click", () => {
 
 cancelBtn.addEventListener("click", () => {
   modal.classList.remove("open");
+  modalInput.value = "";
 });
 
 modalOverlay.addEventListener("click", (e) => {
@@ -208,3 +284,5 @@ modalForm.addEventListener("submit", (e) => {
 });
 
 notesList.addEventListener("click", noteHandleClick);
+
+renderNotes();
