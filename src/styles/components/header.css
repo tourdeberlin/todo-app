@@ -1,6 +1,5 @@
 .header {
   padding-top: 40px;
-  max-width: 750px;
   width: 100%;
 }
 
@@ -9,13 +8,25 @@
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 20px;
 }
 
 .search {
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
-  width: 750px;
-  justify-content: space-between;
+  max-width: 750px;
+  width: 100%;
   gap: 16px;
+}
+
+@media (max-width: 780px) {
+  .search {
+    flex-direction: column;
+  }
+}
+
+.search__controls {
+  display: flex;
+  gap: 16px;
+  width: 100%;
 }

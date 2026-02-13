@@ -1,10 +1,12 @@
 .field {
   position: relative;
+  width: 100%;
 }
 
 .field__input {
   display: block;
   height: 38px;
+  width: 100%;
   font-size: 16px;
   font-family: var(--font-second);
   font-weight: 500;
@@ -15,7 +17,7 @@
 }
 
 .field__input_search {
-  width: 595px;
+  width: 580px;
 }
 
 .field__input::placeholder {

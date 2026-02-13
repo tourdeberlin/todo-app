@@ -6,13 +6,15 @@ const modalInput = document.querySelector(".modal__input");
 const cancelBtn = document.querySelector("#cancel-modal");
 const modalOverlay = document.querySelector(".modal__overlay");
 const modalForm = document.querySelector(".modal__form");
-const searchInput = document.querySelector('.field__input_search');
+const searchInput = document.querySelector(".field__input_search");
+const dropDownBtn = document.querySelector(".dropdown__btn");
+const dropdownMenu = document.querySelector(".dropdown__menu");
 
 const state = {
   notes: getNotesFromLocalStorage(),
-  searchQuery: '',
-  statusFilter: 'all'
-}
+  searchQuery: "",
+  statusFilter: "all",
+};
 
 function getNotesFromLocalStorage() {
   const data = localStorage.getItem("note-items");
@@ -42,29 +44,43 @@ function addNewNote(newNoteText) {
   renderNotes();
 }
 
+function renderEmpty() {
+  const empty = createElement({
+    tag: "div",
+    parent: notesList,
+    classNames: ["empty"],
+  });
+  const emptyImage = createElement({
+    tag: "img",
+    parent: empty,
+    classNames: ["empty__img"],
+  });
+  emptyImage.src = "src/images/empty-list.png";
+  createElement({
+    tag: "span",
+    text: "Empty...",
+    parent: empty,
+    classNames: ["empty__text"],
+  });
+}
+
+function getFilteredNotes() {
+  return state.notes
+    .filter((note) => note.text.toLowerCase().includes(state.searchQuery))
+    .filter((note) => {
+      if (state.statusFilter === "all") return true;
+      if (state.statusFilter === "complete") return note.completed;
+      if (state.statusFilter === "incomplete") return !note.completed;
+    });
+}
+
 function renderNotes() {
   notesList.innerHTML = "";
 
-  const filteredNotes = state.notes.filter((note) => note.text.toLowerCase().includes(state.searchQuery));
+  const filteredNotes = getFilteredNotes();
 
   if (filteredNotes.length === 0) {
-    const empty = createElement({
-      tag: "div",
-      parent: notesList,
-      classNames: ["empty"],
-    });
-    const emptyImage = createElement({
-      tag: "img",
-      parent: empty,
-      classNames: ["empty__img"],
-    });
-    emptyImage.src = "src/images/empty-list.png";
-    createElement({
-      tag: "span",
-      text: "Empty...",
-      parent: empty,
-      classNames: ["empty__text"],
-    });
+    renderEmpty();
   }
 
   filteredNotes.map((note) => {
@@ -165,7 +181,7 @@ function toggleCompletedNote(id) {
   renderNotes();
 }
 
-function startEditing(noteElem) {
+function startEdit(noteElem) {
   const noteId = noteElem.dataset.id;
   const noteInput = noteElem.querySelector(".note__input");
   const noteText = noteElem.querySelector(".note__text");
@@ -176,6 +192,7 @@ function startEditing(noteElem) {
   noteText.classList.add("none");
   noteInput.classList.remove("none");
 
+  noteInput.value = noteText.textContent;
   noteInput.focus();
 
   editBtn.innerHTML = `<svg width="17" height="17" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -192,12 +209,12 @@ function startEditing(noteElem) {
   noteInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       saveEdit(noteElem);
-      renderNotes();
     }
   });
 }
 
 function saveEdit(noteElem) {
+  const id = noteElem.dataset.id;
   const noteInput = noteElem.querySelector(".note__input");
   const newText = noteInput.value.trim();
 
@@ -253,7 +270,7 @@ function noteHandleClick({ target }) {
     if (isEditing) {
       saveEdit(noteElement);
     } else {
-      startEditing(noteElement);
+      startEdit(noteElement);
     }
   }
 
@@ -279,7 +296,6 @@ modalOverlay.addEventListener("click", (e) => {
     modal.classList.remove("open");
     modalInput.value = "";
   }
-  
 });
 
 modalForm.addEventListener("submit", (e) => {
@@ -289,15 +305,27 @@ modalForm.addEventListener("submit", (e) => {
   if (!noteText) return;
 
   addNewNote(noteText);
-  
+
   modal.classList.remove("open");
+  modalInput.value = "";
 });
 
 notesList.addEventListener("click", noteHandleClick);
 
-searchInput.addEventListener('input', (e) => {
+searchInput.addEventListener("input", (e) => {
   state.searchQuery = e.target.value.toLowerCase();
   renderNotes();
-})
+});
+
+dropDownBtn.addEventListener("click", () => {
+  dropdownMenu.classList.toggle("active");
+});
+
+dropdownMenu.addEventListener("click", (e) => {
+  state.statusFilter = e.target.dataset.value;
+  dropDownBtn.firstChild.textContent = state.statusFilter;
+  dropdownMenu.classList.remove("active");
+  renderNotes();
+});
 
 renderNotes();
