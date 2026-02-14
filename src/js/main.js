@@ -14,6 +14,10 @@ const state = {
   notes: getNotesFromLocalStorage(),
   searchQuery: "",
   statusFilter: "all",
+  deletedNote: null,
+  deletedIndex: null,
+  undoTimer: null,
+  undoCountdown: 5,
 };
 
 function getNotesFromLocalStorage() {
@@ -159,10 +163,52 @@ function createNote(newNote) {
 }
 
 function deleteNote(id) {
-  state.notes = state.notes.filter((note) => note.id !== id);
+  const index = state.notes.findIndex((note) => note.id === id);
+
+  state.deletedNote = state.notes[index];
+  state.deletedIndex = index;
+
+  state.notes.splice(index, 1);
 
   saveToLocalStorage();
   renderNotes();
+}
+
+function showUndo() {
+  const undoBtn = document.querySelector(".undo-btn");
+  const undoCount = undoBtn.querySelector(".undo-btn__count");
+  state.undoCountdown = 5;
+
+  undoBtn.classList.add("visible");
+  undoCount.textContent = state.undoCountdown;
+
+  clearInterval(state.undoTimer);
+
+  state.undoTimer = setInterval(() => {
+    state.undoCountdown--;
+    undoCount.textContent = state.undoCountdown;
+
+    if (state.undoCountdown === 0) {
+      clearInterval(state.undoTimer);
+      undoBtn.classList.remove("visible");
+      state.deletedNote = null;
+      state.deletedIndex = null;
+    }
+  }, 1000);
+
+  undoBtn.addEventListener("click", () => {
+    if (!state.deletedNote) return;
+
+    state.notes.splice(state.deletedIndex, 0, state.deletedNote);
+    clearInterval(state.undoTimer);
+    undoBtn.classList.remove("visible");
+
+    saveToLocalStorage();
+    renderNotes();
+
+    state.deletedNote = null;
+    state.deletedIndex = null;
+  });
 }
 
 function toggleCompletedNote(id) {
@@ -252,7 +298,6 @@ function noteHandleClick({ target }) {
   if (!noteElement) return;
 
   const noteId = noteElement.dataset.id;
-
   const isEditing = noteElement.classList.contains("note--editing");
 
   if (target.closest("[class*='delete']")) {
@@ -262,7 +307,15 @@ function noteHandleClick({ target }) {
       noteElement.classList.add("is-dissapearing");
       setTimeout(() => {
         deleteNote(noteId);
-      }, 500);
+
+        if (state.undoTimer) {
+          clearInterval(state.undoTimer);
+          state.deletedIndex = null;
+          state.deletedNote = null;
+        }
+
+        showUndo();
+      }, 300);
     }
   }
 
