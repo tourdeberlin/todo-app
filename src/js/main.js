@@ -9,6 +9,8 @@ const modalForm = document.querySelector(".modal__form");
 const searchInput = document.querySelector(".field__input_search");
 const dropDownBtn = document.querySelector(".dropdown__btn");
 const dropdownMenu = document.querySelector(".dropdown__menu");
+const undoBtn = document.querySelector(".undo-btn");
+const undoCount = undoBtn.querySelector(".undo-btn__count");
 
 const state = {
   notes: getNotesFromLocalStorage(),
@@ -175,8 +177,6 @@ function deleteNote(id) {
 }
 
 function showUndo() {
-  const undoBtn = document.querySelector(".undo-btn");
-  const undoCount = undoBtn.querySelector(".undo-btn__count");
   state.undoCountdown = 5;
 
   undoBtn.classList.add("visible");
@@ -195,20 +195,21 @@ function showUndo() {
       state.deletedIndex = null;
     }
   }, 1000);
+}
 
-  undoBtn.addEventListener("click", () => {
-    if (!state.deletedNote) return;
+function handleUndo() {
+  if (!state.deletedNote) return;
 
-    state.notes.splice(state.deletedIndex, 0, state.deletedNote);
-    clearInterval(state.undoTimer);
-    undoBtn.classList.remove("visible");
+  state.notes.splice(state.deletedIndex, 0, state.deletedNote);
 
-    saveToLocalStorage();
-    renderNotes();
+  clearInterval(state.undoTimer);
+  undoBtn.classList.remove("visible");
 
-    state.deletedNote = null;
-    state.deletedIndex = null;
-  });
+  saveToLocalStorage();
+  renderNotes();
+
+  state.deletedNote = null;
+  state.deletedIndex = null;
 }
 
 function toggleCompletedNote(id) {
@@ -306,13 +307,7 @@ function noteHandleClick({ target }) {
     } else {
       noteElement.classList.add("is-dissapearing");
       setTimeout(() => {
-        deleteNote(noteId);
-
-        if (state.undoTimer) {
-          clearInterval(state.undoTimer);
-          state.deletedIndex = null;
-          state.deletedNote = null;
-        }
+        deleteNote(noteId)
 
         showUndo();
       }, 300);
@@ -380,5 +375,7 @@ dropdownMenu.addEventListener("click", (e) => {
   dropdownMenu.classList.remove("active");
   renderNotes();
 });
+
+undoBtn.addEventListener("click", handleUndo);
 
 renderNotes();
